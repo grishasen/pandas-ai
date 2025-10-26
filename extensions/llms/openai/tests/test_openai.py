@@ -61,6 +61,22 @@ class TestOpenAILLM:
         assert llm.presence_penalty == 3.0
         assert llm.stop == ["\n"]
 
+    def test_responses_api_params_setting(self):
+        llm = OpenAI(
+            api_token="test",
+            model="gpt-5-mini",
+            reasoning_effort="minimal",
+            max_output_tokens=5000,
+            verbosity="low",
+            stop=["\n"],
+        )
+
+        assert llm.model == "gpt-5-mini"
+        assert llm.reasoning_effort == "minimal"
+        assert llm.max_output_tokens == 5000
+        assert llm.verbosity == "low"
+        assert llm.stop == ["\n"]
+
     def test_completion(self, mocker):
         expected_text = "This is the generated text."
         expected_response = OpenAIObject(
@@ -80,6 +96,27 @@ class TestOpenAILLM:
         result = openai.completion("Some prompt.")
 
         openai.completion.assert_called_once_with("Some prompt.")
+        assert result == expected_response
+
+    def test_responses(self, mocker):
+        expected_text = "This is the generated text."
+        expected_response = OpenAIObject(
+            {
+                "choices": [{"text": expected_text}],
+                "usage": {
+                    "prompt_tokens": 2,
+                    "completion_tokens": 1,
+                    "total_tokens": 3,
+                },
+                "model": "gpt-5-mini",
+            }
+        )
+
+        openai = OpenAI(api_token="test")
+        mocker.patch.object(openai, "responses_completion", return_value=expected_response)
+        result = openai.responses_completion("Some prompt.")
+
+        openai.responses_completion.assert_called_once_with("Some prompt.")
         assert result == expected_response
 
     def test_chat_completion(self, mocker):
