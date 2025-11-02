@@ -5,6 +5,7 @@ import openai
 
 from pandasai.exceptions import APIKeyNotFoundError, MissingModelError
 from pandasai.helpers import load_dotenv
+
 from .base import BaseOpenAI
 
 load_dotenv()
@@ -30,17 +31,17 @@ class AzureOpenAI(BaseOpenAI):
     api_type: str = "azure"
 
     def __init__(
-            self,
-            api_token: Optional[str] = None,
-            azure_endpoint: Union[str, None] = None,
-            azure_ad_token: Union[str, None] = None,
-            azure_ad_token_provider: Union[Callable[[], str], None] = None,
-            api_base: Optional[str] = None,
-            api_version: Optional[str] = None,
-            deployment_name: str = None,
-            is_chat_model: bool = True,
-            http_client: str = None,
-            **kwargs,
+        self,
+        api_token: Optional[str] = None,
+        azure_endpoint: Union[str, None] = None,
+        azure_ad_token: Union[str, None] = None,
+        azure_ad_token_provider: Union[Callable[[], str], None] = None,
+        api_base: Optional[str] = None,
+        api_version: Optional[str] = None,
+        deployment_name: str = None,
+        is_chat_model: bool = True,
+        http_client: str = None,
+        **kwargs,
     ):
         """
         Args:
@@ -56,9 +57,9 @@ class AzureOpenAI(BaseOpenAI):
         """
 
         self.api_token = (
-                api_token
-                or os.getenv("AZURE_OPENAI_API_KEY")
-                or os.getenv("OPENAI_API_KEY")
+            api_token
+            or os.getenv("AZURE_OPENAI_API_KEY")
+            or os.getenv("OPENAI_API_KEY")
         )
         self.azure_endpoint = azure_endpoint or os.getenv("AZURE_OPENAI_ENDPOINT")
         self.api_base = api_base or os.getenv("OPENAI_API_BASE")
@@ -99,14 +100,7 @@ class AzureOpenAI(BaseOpenAI):
 
         self._set_params(**kwargs)
 
-        root_client = openai.AzureOpenAI(
-            **self._client_params,
-            api_version=self.api_version,
-            azure_endpoint=self.azure_endpoint,
-            azure_deployment=self.deployment_name,
-            azure_ad_token=self.azure_ad_token,
-            azure_ad_token_provider=self.azure_ad_token_provider,
-        )
+        root_client = openai.AzureOpenAI(**self._client_params)
 
         if self._is_responses_api_like(self.deployment_name):
             self._is_responses_model = True
